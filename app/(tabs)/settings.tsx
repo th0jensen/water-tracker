@@ -1,38 +1,68 @@
 import {StyleSheet, TouchableWithoutFeedback, Keyboard} from 'react-native';
 import {useState} from 'react';
+import {z} from 'zod';
+
 import {Text, View} from '@/components/Themed.tsx';
 import TextField from '@/components/TextField.tsx';
 import HorizontalPicker from '@/components/HorizontalPicker.tsx';
 
-enum Units {
-  Metric = 'metric',
-  Imperial = 'imperial',
-}
+import Units, {type UnitsType} from '@/models/Units';
+import Activity, {type ActivityType} from '@/models/Activity';
 
-namespace Units {
-  export const variants = (): Units[] =>
-    Object.values(Units).filter(value => typeof value === 'string') as Units[];
+const NumericStringSchema = z
+  .string()
+  .refine(val => !isNaN(Number(val)), {message: 'Must be a valid number'})
+  .transform(val => Number(val));
 
-  type PickerItem = {label: string; value: string};
-  export const toPickerItems = (): PickerItem[] =>
-    variants().map(unit => ({
-      label: unit === Units.Metric ? 'Metric' : 'Imperial',
-      value: unit,
-    }));
+const validateNumericString = (text: string): string | undefined => {
+  if (text === '') {
+    return '';
+  }
 
-  type ToHeightProps = (unit: Units) => 'cm' | 'inches';
-  export const toHeight: ToHeightProps = unit => (unit === Units.Metric ? 'cm' : 'inches');
-
-  type ToWeightProps = (unit: Units) => 'kg' | 'lbs';
-  export const toWeight: ToWeightProps = unit => (unit === Units.Metric ? 'kg' : 'lbs');
-}
+  const result = NumericStringSchema.safeParse(text);
+  if (result.success) {
+    return result.data.toString();
+  } else {
+    console.warn('Invalid type:', result.error.message);
+    return undefined;
+  }
+};
 
 export default function SettingsScreen() {
-  const [unit, setUnit] = useState<Units>(Units.Metric);
+  const [unit, setUnit] = useState<UnitsType>(Units.Metric);
+  const [activity, setActivity] = useState<ActivityType>(Activity.Active);
   const [height, setHeight] = useState<string>('');
   const [weight, setWeight] = useState<string>('');
   const dismissKeyboard = () => {
     Keyboard.dismiss();
+  };
+
+  const handleUnitChange = (value: string) => {
+    const validatedUnit = Units.validate(value);
+    if (validatedUnit) {
+      setUnit(validatedUnit);
+    }
+  };
+
+  const handleActivityChange = (value: string) => {
+    const validatedActivity = Activity.validate(value);
+    if (validatedActivity) {
+      setActivity(validatedActivity);
+    }
+  };
+
+  const handleHeightChange = (value: string) => {
+    const validatedHeight = validateNumericString(value);
+    if (validatedHeight !== undefined) {
+      setHeight(validatedHeight);
+    }
+  };
+
+  const handleWeightChange = (value: string) => {
+    const validatedWeight = validateNumericString(value);
+    if (validatedWeight !== undefined) {
+      setWeight(validatedWeight);
+    }
   };
 
   return (
@@ -43,26 +73,31 @@ export default function SettingsScreen() {
         <View onStartShouldSetResponder={() => true} style={styles.inputWrapper}>
           <HorizontalPicker
             value={unit}
-            onValueChange={(value: string) => setUnit(value as Units)}
+            onValueChange={handleUnitChange}
             items={Units.toPickerItems()}
           />
         </View>
         <View onStartShouldSetResponder={() => true} style={styles.inputWrapper}>
           <TextField
-            label="Height"
-            placeholder={`Enter height in ${Units.toHeight(unit)}`}
+            label={`Height (${Units.toHeight(unit)})`}
             keyboardType="numeric"
             value={height}
-            onChangeText={setHeight}
+            onChangeText={handleHeightChange}
           />
         </View>
         <View onStartShouldSetResponder={() => true} style={styles.inputWrapper}>
           <TextField
-            label="Weight"
-            placeholder={`Enter weight in ${Units.toWeight(unit)}`}
+            label={`Weight (${Units.toWeight(unit)})`}
             keyboardType="numeric"
             value={weight}
-            onChangeText={setWeight}
+            onChangeText={handleWeightChange}
+          />
+        </View>
+        <View onStartShouldSetResponder={() => true} style={styles.inputWrapper}>
+          <HorizontalPicker
+            value={activity}
+            onValueChange={handleActivityChange}
+            items={Activity.toPickerItems()}
           />
         </View>
       </View>

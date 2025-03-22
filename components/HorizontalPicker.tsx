@@ -11,6 +11,8 @@ import {
   Dimensions,
 } from 'react-native';
 
+export type PickerItem = {label: string; value: string};
+
 interface HorizontalPickerProps {
   label?: string; // Kept for API compatibility, but won't be used
   value: string;

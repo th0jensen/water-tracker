@@ -10,7 +10,7 @@ export default function NotFoundScreen() {
       <View style={styles.container}>
         <Text style={styles.title}>This is not meant to happen...</Text>
 
-        <Link href="/tracker" style={styles.link}>
+        <Link href="/" style={styles.link}>
           <Text style={styles.linkText}>Bring me back to safety!</Text>
         </Link>
       </View>
