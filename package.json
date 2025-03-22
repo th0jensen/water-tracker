@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@expo/vector-icons": "^14.0.2",
+    "@react-native-async-storage/async-storage": "^2.1.2",
     "@react-native-picker/picker": "^2.11.0",
     "@react-navigation/native": "^7.0.14",
     "expo": "~52.0.40",
@@ -26,6 +27,7 @@
     "expo-status-bar": "~2.0.1",
     "expo-system-ui": "~4.0.8",
     "expo-web-browser": "~14.0.2",
+    "jotai": "^2.12.2",
     "prettier": "^3.5.3",
     "prettier-airbnb-config": "^1.0.0",
     "react": "18.3.1",

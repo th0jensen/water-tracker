@@ -16,8 +16,9 @@ namespace UnitsImpl {
       value: unit,
     }));
 
-  export const toHeight = (unit: Units) => (unit === Units.Metric ? 'cm' : 'inches');
+  export const toHeight = (unit: Units) => (unit === Units.Metric ? 'cm' : 'in');
   export const toWeight = (unit: Units) => (unit === Units.Metric ? 'kg' : 'lbs');
+  export const toLiquid = (unit: Units) => (unit === Units.Metric ? 'ml' : 'fl.oz.');
 
   export const schema = z.enum([Units.Metric, Units.Imperial]);
 

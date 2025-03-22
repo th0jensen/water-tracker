@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {
   View,
   TextInput,
@@ -11,6 +11,7 @@ import {
   StyleProp,
   useColorScheme,
   Dimensions,
+  TouchableWithoutFeedback,
 } from 'react-native';
 
 interface TextFieldProps extends Omit<TextInputProps, 'style'> {
@@ -38,6 +39,7 @@ const TextField: React.FC<TextFieldProps> = ({
   multiline = false,
   ...rest
 }) => {
+  const inputRef = useRef<TextInput>(null);
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const [animatedIsFocused] = useState<Animated.Value>(new Animated.Value(value ? 1 : 0));
   const colorScheme = useColorScheme();
@@ -47,7 +49,7 @@ const TextField: React.FC<TextFieldProps> = ({
 
   useEffect(() => {
     Animated.timing(animatedIsFocused, {
-      toValue: isFocused || !!value ? 1 : 0, // Animate to "focused" style if focused OR has value
+      toValue: isFocused || !!value || value != '' ? 1 : 0, // Animate to "focused" style if focused OR has value
       duration: 200,
       useNativeDriver: false,
     }).start();
@@ -72,39 +74,49 @@ const TextField: React.FC<TextFieldProps> = ({
   };
 
   return (
-    <View style={[styles.container, style]}>
-      {label && <Animated.Text style={labelStyle}>{label}</Animated.Text>}
-      <TextInput
-        style={[
-          styles.input,
-          isFocused && styles.focused,
-          error && styles.errorInput,
-          disabled && styles.disabled,
-          {
-            backgroundColor: colorScheme === 'dark' ? '#1f2937' : '#fff',
-            color: colorScheme === 'dark' ? '#fff' : '#1f2937',
-            borderColor: colorScheme === 'dark' ? '#374151' : '#d1d5db',
-          },
-          inputStyle,
-        ]}
-        placeholder={isFocused ? placeholder : ''}
-        value={value}
-        onChangeText={onChangeText}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
-        secureTextEntry={secureTextEntry}
-        keyboardType={keyboardType}
-        editable={!disabled}
-        autoCapitalize={autoCapitalize}
-        multiline={multiline}
-        placeholderTextColor={colorScheme === 'dark' ? '#6b7280' : '#9ca3af'}
-        accessibilityLabel={label}
-        accessibilityHint={placeholder}
-        accessibilityState={{disabled}}
-        {...rest}
-      />
-      {error && <Text style={[styles.errorText, {color: '#ef4444'}]}>{error}</Text>}
-    </View>
+    <TouchableWithoutFeedback
+      onPress={() => {
+        if (!disabled && inputRef.current) {
+          inputRef.current.focus();
+        }
+      }}
+      accessibilityRole="button"
+    >
+      <View style={[styles.container, style]}>
+        {label && <Animated.Text style={labelStyle}>{label}</Animated.Text>}
+        <TextInput
+          ref={inputRef} // Add ref here
+          style={[
+            styles.input,
+            isFocused && styles.focused,
+            error && styles.errorInput,
+            disabled && styles.disabled,
+            {
+              backgroundColor: colorScheme === 'dark' ? '#1f2937' : '#fff',
+              color: colorScheme === 'dark' ? '#fff' : '#1f2937',
+              borderColor: colorScheme === 'dark' ? '#374151' : '#d1d5db',
+            },
+            inputStyle,
+          ]}
+          placeholder={isFocused ? placeholder : ''}
+          value={value}
+          onChangeText={onChangeText}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          secureTextEntry={secureTextEntry}
+          keyboardType={keyboardType}
+          editable={!disabled}
+          autoCapitalize={autoCapitalize}
+          multiline={multiline}
+          placeholderTextColor={colorScheme === 'dark' ? '#6b7280' : '#9ca3af'}
+          accessibilityLabel={label}
+          accessibilityHint={placeholder}
+          accessibilityState={{disabled}}
+          {...rest}
+        />
+        {error && <Text style={[styles.errorText, {color: '#ef4444'}]}>{error}</Text>}
+      </View>
+    </TouchableWithoutFeedback>
   );
 };
 
@@ -115,7 +127,7 @@ const styles = StyleSheet.create({
   },
   input: {
     width: '100%',
-    height: 60, // Slightly taller for readability
+    height: 75,
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 16, // Symmetrical horizontal padding

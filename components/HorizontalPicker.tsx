@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
   },
   pickerContainer: {
     width: '100%',
-    height: 60, // Matches TextField height
+    height: 45, // Matches TextField height
     borderWidth: 1,
     borderRadius: 8,
     overflow: 'hidden', // Ensure segments don't bleed outside
